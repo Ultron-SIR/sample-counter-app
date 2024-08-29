@@ -2,20 +2,58 @@ import Head from "next/head";
 import { useState } from "react";
 import MyButton from "./my-button";
 
+const maxCounter = 10;
+const minCounter = -10;
+
 export default function Home() {
-  const [ count, setCount ] = useState(0);
+  const [count, setCount] = useState(0);
+  const [tempCount, setTempCount] = useState(null);
+  const [history, setHistory] = useState([]);
   
   const increaseCounter = () => {
+    if (count >= maxCounter) {
+      alert("Max counter reached");
+      return;
+    }
+    
+    setHistory([...history, count]);
     setCount(count + 1);
+    console.log(history);
   }
 
   const decreaseCounter = () => {
-    setCount(count - 1)
+    if (count <= minCounter) {
+      alert("Min counter reached");
+      return;
+    }
+
+    setHistory([...history, count]);
+    setCount(count - 1);
+    console.log(history);
   }
+
   const handleInput = (e) => {
     const value = e.target.value;
+    setTempCount(Number(value));
     setCount(Number(value));
   }
+
+  const handleReset = () => {
+    setHistory([...history, count]);
+    setCount(tempCount);
+    console.log(history);
+  }
+
+  const handleUndo = () => {
+    if (history.length === 0) return;
+    
+    const lastElementIndex = history.length - 1;
+    setCount(history[lastElementIndex]);
+
+    const newHistory = history.slice(0, lastElementIndex);
+    setHistory(newHistory);
+  };
+
   return (
     <>
       <Head>
@@ -27,16 +65,28 @@ export default function Home() {
       <main>
         <h1 className="heading">Hello {count}</h1>
         <MyButton
-          text="decrease counter"
+          text="Decrease Counter"
           onClick={decreaseCounter}
         />
         <MyButton 
-          text="increase counter" 
+          text="Increase Counter" 
           onClick={increaseCounter}
         />
         <input
+          type="number"
           onInput={handleInput}
         />
+        <MyButton
+          text="Reset to Custom Value"
+          onClick={handleReset}
+        />
+        <MyButton
+          text="Undo"
+          onClick={handleUndo}
+        />
+        <div>
+          {history.join(', ')}
+        </div>
       </main>
     </>
   );
